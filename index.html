@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Jap Mala</title>
+
+  <style>
+    body {
+      height: 200vh;
+      margin: 0;
+      background: #0f172a;
+      color: #facc15;
+      font-family: Arial, sans-serif;
+    }
+
+    .mala-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .count {
+      font-size: 80px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    .mala-count {
+      font-size: 20px;
+      margin-top: 5px;
+      color: #93c5fd;
+    }
+
+    .message {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #86efac;
+      display: none;
+    }
+
+    button {
+      margin-top: 18px;
+      padding: 10px 22px;
+      font-size: 16px;
+      border: none;
+      border-radius: 20px;
+      background: #facc15;
+      color: #0f172a;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="mala-container">
+    <h1>🕉 Jap Mala</h1>
+
+    <div class="count" id="count">0</div>
+    <div class="mala-count" id="malaCount">Malas Completed: 0</div>
+
+    <p>Scroll to chant</p>
+
+    <div class="message" id="message">+1 Mala Complete</div>
+
+    <button id="resetBtn">Reset</button>
+  </div>
+
+  <script>
+    let chantCount = 0;
+    let malaCompleted = 0;
+    let canCount = true;
+
+    const countEl = document.getElementById("count");
+    const malaCountEl = document.getElementById("malaCount");
+    const messageEl = document.getElementById("message");
+    const resetBtn = document.getElementById("resetBtn");
+
+    // 🔔 Bell sound (same folder as index.html)
+    const bellSound = new Audio("indian-temple-bell-68150.m4a");
+    bellSound.preload = "auto";
+
+    window.addEventListener("wheel", (e) => {
+      if (!canCount || e.deltaY === 0) return;
+
+      chantCount++;
+      countEl.innerText = chantCount;
+
+      // Hide message when chanting resumes
+      messageEl.style.display = "none";
+
+      if (chantCount === 108) {
+        malaCompleted++;
+        malaCountEl.innerText = `Malas Completed: ${malaCompleted}`;
+
+        chantCount = 0;
+        countEl.innerText = chantCount;
+
+        messageEl.style.display = "block";
+
+        // 📳 Vibration
+        if (navigator.vibrate) {
+          navigator.vibrate([200, 100, 200]);
+        }
+
+        // 🔔 Play bell sound
+        bellSound.currentTime = 0;
+        bellSound.play();
+      }
+
+      canCount = false;
+      setTimeout(() => {
+        canCount = true;
+      }, 300);
+    });
+
+    resetBtn.addEventListener("click", () => {
+      chantCount = 0;
+      malaCompleted = 0;
+      countEl.innerText = chantCount;
+      malaCountEl.innerText = "Malas Completed: 0";
+      messageEl.style.display = "none";
+    });
+  </script>
+
+</body>
+</html>
