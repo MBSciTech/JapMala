@@ -70,61 +70,80 @@
   </div>
 
   <script>
-    let chantCount = 0;
-    let malaCompleted = 0;
-    let canCount = true;
+  let chantCount = 0;
+  let malaCompleted = 0;
+  let canCount = true;
 
-    const countEl = document.getElementById("count");
-    const malaCountEl = document.getElementById("malaCount");
-    const messageEl = document.getElementById("message");
-    const resetBtn = document.getElementById("resetBtn");
+  const countEl = document.getElementById("count");
+  const malaCountEl = document.getElementById("malaCount");
+  const messageEl = document.getElementById("message");
+  const resetBtn = document.getElementById("resetBtn");
 
-    // 🔔 Bell sound (same folder as index.html)
-    const bellSound = new Audio("indian-temple-bell-68150.m4a");
-    bellSound.preload = "auto";
+  const bellSound = new Audio("indian-temple-bell-68150.m4a");
+  bellSound.preload = "auto";
 
-    window.addEventListener("wheel", (e) => {
-      if (!canCount || e.deltaY === 0) return;
+  function handleChant() {
+    if (!canCount) return;
 
-      chantCount++;
+    chantCount++;
+    countEl.innerText = chantCount;
+    messageEl.style.display = "none";
+
+    if (chantCount === 108) {
+      malaCompleted++;
+      malaCountEl.innerText = `Malas Completed: ${malaCompleted}`;
+
+      chantCount = 0;
       countEl.innerText = chantCount;
 
-      // Hide message when chanting resumes
-      messageEl.style.display = "none";
+      messageEl.style.display = "block";
 
-      if (chantCount === 108) {
-        malaCompleted++;
-        malaCountEl.innerText = `Malas Completed: ${malaCompleted}`;
-
-        chantCount = 0;
-        countEl.innerText = chantCount;
-
-        messageEl.style.display = "block";
-
-        // 📳 Vibration
-        if (navigator.vibrate) {
-          navigator.vibrate([200, 100, 200]);
-        }
-
-        // 🔔 Play bell sound
-        bellSound.currentTime = 0;
-        bellSound.play();
+      if (navigator.vibrate) {
+        navigator.vibrate([200, 100, 200]);
       }
 
-      canCount = false;
-      setTimeout(() => {
-        canCount = true;
-      }, 300);
-    });
+      bellSound.currentTime = 0;
+      bellSound.play();
+    }
 
-    resetBtn.addEventListener("click", () => {
-      chantCount = 0;
-      malaCompleted = 0;
-      countEl.innerText = chantCount;
-      malaCountEl.innerText = "Malas Completed: 0";
-      messageEl.style.display = "none";
-    });
-  </script>
+    canCount = false;
+    setTimeout(() => {
+      canCount = true;
+    }, 350);
+  }
+
+  /* 🖱 Desktop */
+  window.addEventListener("wheel", (e) => {
+    if (e.deltaY !== 0) {
+      handleChant();
+    }
+  });
+
+  /* 📱 Mobile */
+  let touchStartY = 0;
+
+  window.addEventListener("touchstart", (e) => {
+    touchStartY = e.touches[0].clientY;
+  });
+
+  window.addEventListener("touchmove", (e) => {
+    const touchEndY = e.touches[0].clientY;
+    const diff = touchStartY - touchEndY;
+
+    if (Math.abs(diff) > 50) { // swipe threshold
+      handleChant();
+      touchStartY = touchEndY;
+    }
+  });
+
+  resetBtn.addEventListener("click", () => {
+    chantCount = 0;
+    malaCompleted = 0;
+    countEl.innerText = chantCount;
+    malaCountEl.innerText = "Malas Completed: 0";
+    messageEl.style.display = "none";
+  });
+</script>
 
 </body>
 </html>
